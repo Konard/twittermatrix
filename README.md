@@ -1,4 +1,4 @@
 # Twitter Matrix
-Symbols: https://konard.github.io/twittermatrix/
+Twitter: https://agharbeia.github.io/matrixfeed/twitter.html
 
-Messages: https://konard.github.io/twittermatrix/messages.html
+Wikipedia changes: https://agharbeia.github.io/matrixfeed/wikipedia.html
