@@ -8,7 +8,7 @@
         <meta name="apple-mobile-web-app-status-bar-style" content="black">
 	
 	<script src="https://cdn.pubnub.com/pubnub.min.js"></script>
-	<title>Twitter Matrix</title>
+	<title>Wikipedia Changes</title>
 	<style>
 		@font-face {
 		    font-family: 'Unifont';
@@ -158,14 +158,14 @@
 		}
 		
 		PUBNUB.init({
-			subscribe_key: 'sub-c-78806dd4-42a6-11e4-aed8-02ee2ddab7fe',
+			subscribe_key: 'sub-c-b0d14910-0601-11e4-b703-02ee2ddab7fe',
 			ssl: true
 		}).subscribe({
-			channel: 'pubnub-twitter',
+			channel: 'pubnub-wikipedia',
 			message: function(msg) {
 				// skip if there are too many messages (events)
 				if (twitterMessages.length < maxMessages)
-					twitterMessages.push(msg.text);
+					twitterMessages.push(msg.item);
 			}
 		});
 	</script>
