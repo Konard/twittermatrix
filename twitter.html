@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+	
+	<script src="https://cdn.pubnub.com/pubnub.min.js"></script>
+	<title>Twitter Matrix</title>
+	<style>
+		@font-face {
+		    font-family: 'Unifont';
+		    src: url('unifont.eot');
+		    src: url('unifont.woff') format('woff'),
+		         url('unifont.ttf') format('truetype');
+		    font-weight: normal;
+		    font-style: normal;
+		}
+	
+		html, body, canvas, script { margin: 0; padding: 0; overflow: hidden; }
+		body { background: black; font-family: "Unifont"; }
+		canvas { display: block; }
+	</style>
+</head>
+
+<body>
+	<canvas id="c"></canvas>
+	
+	<script>
+		// based on
+		// https://codepen.io/P3R0/pen/MwgoKv
+		// https://www.pubnub.com/developers/realtime-data-streams/twitter-stream/
+
+		// visualization settings
+		var maxMessages = 10240;
+
+		var font_size = 16;
+
+		var minSpeed = 22;
+		var maxSpeed = 88;
+		var speedStep = 11;
+		var currentSpeed = 44;
+
+		var twitterMessages = []; // data stack (queue)
+		var messages = []; // current printed data
+
+		var c = document.getElementById("c");
+		var ctx = c.getContext("2d");
+
+		//making the canvas full screen
+		c.height = window.innerHeight;
+		c.width = window.innerWidth;
+		
+		// limits
+		var columns = Math.floor(c.width / font_size);
+		var rows = Math.floor(c.height / font_size);
+		var middle = Math.floor(columns / 2);
+		
+		// x below is the x coordinate
+		for (var x = 0; x < columns; x++)
+			messages.push({ y: Math.floor(Math.random() * rows), offset: 0, symbols: [] });
+		
+		var timerId = setInterval(draw, currentSpeed);
+
+		//drawing the characters
+		function draw() 
+		{
+			//Black BG for the canvas
+			//translucent BG to show trail
+			ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+			ctx.fillRect(0, 0, c.width, c.height);
+			
+			ctx.fillStyle = "#0F0"; //green text
+			ctx.font = font_size + 'px "Unifont"';
+
+			// draw new letters
+			for (var i = 0; i < columns; i++) 
+			{
+				// iterate from middle of the screen
+				var x = i % 2 == 1 ? middle + (Math.floor(i / 2) + 1) : middle - Math.floor(i / 2);
+
+				if (x >= columns)
+					continue;
+				
+				var message = messages[x];
+					
+				if (message.offset < message.symbols.length)
+				{
+					var symbol = message.symbols[message.offset];
+					
+					if (symbol)
+						ctx.fillText(symbol, x * font_size, message.y * font_size);
+						
+					message.offset++;
+				}
+				else
+				{
+					if (twitterMessages.length > 0)
+					{
+						var twitterMessage = twitterMessages.pop();
+						var symbols = getSymbols(twitterMessage);
+						
+						message.offset = 0;
+						message.symbols = symbols;
+					}
+				}
+				
+				//incrementing Y coordinate
+				if (message.y > rows)
+					message.y = 1;
+				else
+					message.y++;
+			}
+			
+			// adjust speed
+			if (twitterMessages.length > (columns * 2))
+			{
+				if (currentSpeed > minSpeed)
+				{
+					currentSpeed -= speedStep; // speed up
+					
+					clearInterval(timerId);
+					timerId = setInterval(draw, currentSpeed);
+				}
+			}
+			else if (twitterMessages.length < (columns / 2))
+			{
+				if (currentSpeed < maxSpeed)
+				{
+					currentSpeed += speedStep; // slow down
+					
+					clearInterval(timerId);
+					timerId = setInterval(draw, currentSpeed);
+				}
+			}
+		}
+		
+		function getSymbols(string) {
+			var index = 0;
+			var length = string.length;
+			var output = [];
+			for (; index < length - 1; ++index) {
+				var charCode = string.charCodeAt(index);
+				if (charCode >= 0xD800 && charCode <= 0xDBFF) {
+					charCode = string.charCodeAt(index + 1);
+					if (charCode >= 0xDC00 && charCode <= 0xDFFF) {
+						output.push(string.slice(index, index + 2));
+						++index;
+						continue;
+					}
+				}
+				output.push(string.charAt(index));
+			}
+			output.push(string.charAt(index));
+			return output;
+		}
+		
+		PUBNUB.init({
+			subscribe_key: 'sub-c-78806dd4-42a6-11e4-aed8-02ee2ddab7fe',
+			ssl: true
+		}).subscribe({
+			channel: 'pubnub-twitter',
+			message: function(msg) {
+				// skip if there are too many messages (events)
+				if (twitterMessages.length < maxMessages)
+					twitterMessages.push(msg.text);
+			}
+		});
+	</script>
+</body>
+
+</html>
