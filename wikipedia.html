@@ -31,10 +31,10 @@
 	<script>
 		// based on
 		// https://codepen.io/P3R0/pen/MwgoKv
-		// https://www.pubnub.com/developers/realtime-data-streams/twitter-stream/
+		// https://www.pubnub.com/developers/realtime-data-streams/wikipedia-stream/
 
 		// visualization settings
-		var maxMessages = 10240;
+		var maxChanges = 10240;
 
 		var font_size = 16;
 
@@ -43,8 +43,8 @@
 		var speedStep = 11;
 		var currentSpeed = 44;
 
-		var twitterMessages = []; // data stack (queue)
-		var messages = []; // current printed data
+		var wikipediaChanges = []; // data stack (queue)
+		var changes = []; // current printed data
 
 		var c = document.getElementById("c");
 		var ctx = c.getContext("2d");
@@ -60,7 +60,7 @@
 		
 		// x below is the x coordinate
 		for (var x = 0; x < columns; x++)
-			messages.push({ y: Math.floor(Math.random() * rows), offset: 0, symbols: [] });
+			changes.push({ y: Math.floor(Math.random() * rows), offset: 0, symbols: [] });
 		
 		var timerId = setInterval(draw, currentSpeed);
 
@@ -84,38 +84,38 @@
 				if (x >= columns)
 					continue;
 				
-				var message = messages[x];
+				var change = changes[x];
 					
-				if (message.offset < message.symbols.length)
+				if (change.offset < change.symbols.length)
 				{
-					var symbol = message.symbols[message.offset];
+					var symbol = change.symbols[change.offset];
 					
 					if (symbol)
-						ctx.fillText(symbol, x * font_size, message.y * font_size);
+						ctx.fillText(symbol, x * font_size, change.y * font_size);
 						
-					message.offset++;
+					change.offset++;
 				}
 				else
 				{
-					if (twitterMessages.length > 0)
+					if (wikipediaChanges.length > 0)
 					{
-						var twitterMessage = twitterMessages.pop();
-						var symbols = getSymbols(twitterMessage);
+						var wikipediaChange = wikipediaChanges.pop();
+						var symbols = getSymbols(wikipediaChange);
 						
-						message.offset = 0;
-						message.symbols = symbols;
+						change.offset = 0;
+						change.symbols = symbols;
 					}
 				}
 				
 				//incrementing Y coordinate
-				if (message.y > rows)
-					message.y = 1;
+				if (change.y > rows)
+					change.y = 1;
 				else
-					message.y++;
+					change.y++;
 			}
 			
 			// adjust speed
-			if (twitterMessages.length > (columns * 2))
+			if (wikipediaChanges.length > (columns * 2))
 			{
 				if (currentSpeed > minSpeed)
 				{
@@ -125,7 +125,7 @@
 					timerId = setInterval(draw, currentSpeed);
 				}
 			}
-			else if (twitterMessages.length < (columns / 2))
+			else if (wikipediaChanges.length < (columns / 2))
 			{
 				if (currentSpeed < maxSpeed)
 				{
@@ -162,10 +162,10 @@
 			ssl: true
 		}).subscribe({
 			channel: 'pubnub-wikipedia',
-			message: function(msg) {
-				// skip if there are too many messages (events)
-				if (twitterMessages.length < maxMessages)
-					twitterMessages.push(msg.item);
+			change: function(msg) {
+				// skip if there are too many changes (events)
+				if (wikipediaChanges.length < maxChanges)
+					wikipediaChanges.push(msg.item);
 			}
 		});
 	</script>
