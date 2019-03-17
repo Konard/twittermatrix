@@ -162,7 +162,7 @@
 			ssl: true
 		}).subscribe({
 			channel: 'pubnub-wikipedia',
-			change: function(msg) {
+			message: function(msg) {
 				// skip if there are too many changes (events)
 				if (wikipediaChanges.length < maxChanges)
 					wikipediaChanges.push(msg.item);
