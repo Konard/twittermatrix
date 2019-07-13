@@ -1,4 +1,2 @@
-# Twitter Matrix
-Symbols: https://konard.github.io/twittermatrix/
-
-Messages: https://konard.github.io/twittermatrix/messages.html
+Created only for make `Code` link from https://experiments.withgoogle.com/twitter-matrix work.
+Look at `master` branch for updates.
