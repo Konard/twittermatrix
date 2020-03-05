@@ -185,7 +185,8 @@
 					}
 					else
 					{
-						if (twitterMessages.length > 0)
+						var startNewColumn = Math.random() > 0.95;
+						if (twitterMessages.length > 0 && startNewColumn)
 						{
 							var twitterMessage = twitterMessages.pop();
 							var symbols = getSymbols(twitterMessage.text);
@@ -259,8 +260,11 @@
 					// skip if there are too many messages (events)
 					if (twitterMessages.length < maxMessages)
 					{
-						var messageUrl = "https://twitter.com/" + msg.user.screen_name + "/status/" + msg.id_str;
-						twitterMessages.push({ text: msg.text, url: messageUrl });
+						if (msg.lang == "en")
+						{
+							var messageUrl = "https://twitter.com/" + msg.user.screen_name + "/status/" + msg.id_str;
+							twitterMessages.push({ text: msg.text, url: messageUrl });
+						}
 					}
 				}
 			});
