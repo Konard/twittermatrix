@@ -1,9 +1,5 @@
 # Twitter Matrix
 
-## Random symbols from twitter messages
-
-https://konard.github.io/twittermatrix/
-
 ## Messages
 https://konard.github.io/twittermatrix/messages.html
 
@@ -15,3 +11,6 @@ https://konard.github.io/twittermatrix/messages_en.html
 
 https://konard.github.io/twittermatrix/messages_ru.html
 
+## Random symbols from twitter messages
+
+https://konard.github.io/twittermatrix/
