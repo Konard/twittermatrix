@@ -185,7 +185,8 @@
 					}
 					else
 					{
-						if (twitterMessages.length > 0)
+						var startNewColumn = Math.random() > 0.70;
+						if (twitterMessages.length > 0 && startNewColumn)
 						{
 							var twitterMessage = twitterMessages.pop();
 							var symbols = getSymbols(twitterMessage.text);
