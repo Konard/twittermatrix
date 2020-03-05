@@ -4,30 +4,34 @@
 <head>
 	<meta charset="utf-8">
 	
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
 	
 	<script src="https://cdn.pubnub.com/pubnub.min.js"></script>
 	<title>Twitter Matrix</title>
 	<style>
 		@font-face {
-		    font-family: 'Unifont';
-		    src: url('unifont.eot');
-		    src: url('unifont.woff') format('woff'),
-		         url('unifont.ttf') format('truetype');
-		    font-weight: normal;
-		    font-style: normal;
+			font-family: 'Unifont';
+			src: url('unifont.eot');
+			src: url('unifont.woff') format('woff')
+			src: url('unifont.ttf') format('truetype');
+			font-weight: normal;
+			font-style: normal;
 		}
 	
 		html, body, canvas, script { margin: 0; padding: 0; overflow: hidden; }
 		body { background: black; font-family: "Unifont"; }
-		canvas { display: block; }
+		canvas { display: block; cursor: pointer; }
 	</style>
 </head>
 
 <body>
 	<canvas id="c"></canvas>
 	
+	<audio id="a" autoplay hidden loop>
+		<source src="DramaticEndingShortVersion.mp3" type="audio/mpeg">
+	</audio>
+		
 	<script>
 		// based on
 		// https://codepen.io/P3R0/pen/MwgoKv
@@ -39,12 +43,16 @@
 		var font_size = 16;
 
 		var minSpeed = 22;
-		var maxSpeed = 88;
+		var maxSpeed = 99;
 		var speedStep = 11;
-		var currentSpeed = 44;
+		var currentSpeed = 88;
+		
+		var maxStepsToResetColumn = 200;
 
 		var twitterMessages = []; // data stack (queue)
 		var messages = []; // current printed data
+		
+		var a = document.getElementById("a");
 
 		var c = document.getElementById("c");
 		var ctx = c.getContext("2d");
@@ -63,16 +71,95 @@
 			messages.push({ y: Math.floor(Math.random() * rows), offset: 0, symbols: [] });
 		
 		var timerId = setInterval(draw, currentSpeed);
+		
+		mouseState = { x: -1, y: -1 };
+		currentColumnState = { };
+		
+		function setColumnState(column) {
+			currentColumnState.column = column;
+			currentColumnState.messageEnd = false;
+			currentColumnState.steps = 0;
+		}
+		
+		function resetColumnState() {
+			setColumnState(-1);
+		}
+		
+		resetColumnState();
+		
+		function updateColumnState(e) {
+			var column = Math.floor(e.clientX / font_size);
+			if (currentColumnState.column != column)
+			{
+				setColumnState(column);
+			}
+ 		}
+		
+		function onClick(e)
+		{
+			updateColumnState(e);
+			var message = messages[currentColumnState.column];
+			if (message.url)
+			{
+				window.open(message.url, '_blank');
+			}
+		}
+		
+		function toggleAudio()
+		{
+			if (a.paused)
+			{
+				a.play();
+			}
+			else
+			{
+				a.pause();
+			}
+		}
+		
+		onmousemove = updateColumnState;
+		onclick = onClick;
+		onkeyup = function(e) 
+		{
+			if (e.keyCode == 32)
+			{
+				toggleAudio();
+			}
+		}
 
 		//drawing the characters
 		function draw() 
 		{
-			//Black BG for the canvas
-			//translucent BG to show trail
-			ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-			ctx.fillRect(0, 0, c.width, c.height);
+			// Update column state
+			var currentColumn = currentColumnState.column;
+			if (currentColumn > 0)
+			{
+				currentColumnState.steps++;
+				if (currentColumnState.steps > maxStepsToResetColumn)
+				{
+					resetColumnState();
+					currentColumn = -1;
+				}
+			}
 			
-			ctx.fillStyle = "#0F0"; //green text
+			// Fade old symbols away one step
+			if (currentColumn > 0)
+			{
+				//Black BG for the canvas
+				//translucent BG to show trail
+				ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+				ctx.fillRect(0, 0, currentColumn * font_size, c.height);
+				ctx.fillRect((currentColumn + 1) * font_size, 0,  c.width, c.height);
+			}
+			else
+			{
+				//Black BG for the canvas
+				//translucent BG to show trail
+				ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+				ctx.fillRect(0, 0, c.width, c.height);
+			}
+			
+			ctx.fillStyle = "#4F4"; //green text
 			ctx.font = font_size + 'px "Unifont"';
 
 			// draw new letters
@@ -81,11 +168,11 @@
 				// iterate from middle of the screen
 				var x = i % 2 == 1 ? middle + (Math.floor(i / 2) + 1) : middle - Math.floor(i / 2);
 
-				if (x >= columns)
+				if (x >= columns || x == currentColumn)
 					continue;
 				
 				var message = messages[x];
-					
+				
 				if (message.offset < message.symbols.length)
 				{
 					var symbol = message.symbols[message.offset];
@@ -100,10 +187,15 @@
 					if (twitterMessages.length > 0)
 					{
 						var twitterMessage = twitterMessages.pop();
-						var symbols = getSymbols(twitterMessage);
+						var symbols = getSymbols(twitterMessage.text);
 						
+						message.url = twitterMessage.url;
 						message.offset = 0;
 						message.symbols = symbols;
+					}
+					else
+					{
+						message.url = null;
 					}
 				}
 				
@@ -165,7 +257,10 @@
 			message: function(msg) {
 				// skip if there are too many messages (events)
 				if (twitterMessages.length < maxMessages)
-					twitterMessages.push(msg.text);
+				{
+					var messageUrl = "https://twitter.com/" + msg.user.screen_name + "/status/" + msg.id_str;
+					twitterMessages.push({ text: msg.text, url: messageUrl });
+				}
 			}
 		});
 	</script>
