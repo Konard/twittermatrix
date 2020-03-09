@@ -8,6 +8,7 @@
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 	
 	<script src="https://cdn.pubnub.com/pubnub.min.js"></script>
+	<script src="symbols.js"></script>
 	<title>Twitter Matrix</title>
 	<style>
 		@font-face {
@@ -228,57 +229,6 @@
 						timerId = setInterval(draw, currentSpeed);
 					}
 				}
-			}
-			
-			var renderAsText = '\uFE0E'; // VARIATION SELECTOR-15 'text style'
-			var renderAsImage = '\0xFE0F'; // VARIATION SELECTOR-16 'emoji style'
-			
-			function getSymbols(string)
-			{
-				var index = 0;
-				var length = string.length;
-				var output = [];
-				for (; index < length - 1; ++index)
-				{
-					var charCode = string.charCodeAt(index);
-					if (charCode >= 0xD83D && charCode <= 0xDBFF) // Override for EMOJI
-					{
-						charCode = string.charCodeAt(index + 1);
-						if (charCode >= 0xDE00 && charCode <= 0xDE4F)
-						{
-							output.push(string.slice(index, index + 2) + renderAsText);
-							++index;
-							continue;
-						}
-					}
-					if (charCode == 0xD83E) // Override for EMOJI
-					{
-						charCode = string.charCodeAt(index + 1);
-						if (charCode >= 0xDD10 && charCode <= 0xDD2F)
-						{
-							output.push(string.slice(index, index + 2) + renderAsText);
-							++index;
-							continue;
-						}
-					}
-					if (charCode >= 0xD800 && charCode <= 0xDBFF) 
-					{
-						charCode = string.charCodeAt(index + 1);
-						if (charCode >= 0xDC00 && charCode <= 0xDFFF)
-						{
-							output.push(string.slice(index, index + 2));
-							++index;
-							continue;
-						}
-					}
-					if (charCode == renderAsImage) // Do not render as image
-					{
-						continue;
-					}
-					output.push(string.charAt(index));
-				}
-				output.push(string.charAt(index));
-				return output;
 			}
 			
 			PUBNUB.init({
