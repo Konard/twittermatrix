@@ -76,19 +76,22 @@
 			mouseState = { x: -1, y: -1 };
 			currentColumnState = { };
 			
-			function setColumnState(column) {
+			function setColumnState(column)
+			{
 				currentColumnState.column = column;
 				currentColumnState.messageEnd = false;
 				currentColumnState.steps = 0;
 			}
 			
-			function resetColumnState() {
+			function resetColumnState()
+			{
 				setColumnState(-1);
 			}
 			
 			resetColumnState();
 			
-			function updateColumnState(e) {
+			function updateColumnState(e) 
+			{
 				var column = Math.floor(e.clientX / font_size);
 				if (currentColumnState.column != column)
 				{
@@ -227,19 +230,47 @@
 				}
 			}
 			
-			function getSymbols(string) {
+			function getSymbols(string)
+			{
 				var index = 0;
 				var length = string.length;
 				var output = [];
-				for (; index < length - 1; ++index) {
+				for (; index < length - 1; ++index)
+				{
 					var charCode = string.charCodeAt(index);
-					if (charCode >= 0xD800 && charCode <= 0xDBFF) {
+					if (charCode >= 0xD83D && charCode <= 0xDBFF) 
+					{
 						charCode = string.charCodeAt(index + 1);
-						if (charCode >= 0xDC00 && charCode <= 0xDFFF) {
+						if (charCode >= 0xDE00 && charCode <= 0xDE4F)
+						{
+							output.push(string.slice(index, index + 2) + '\uFE0E'); // Attempt to fix EMOJI rendering
+							++index;
+							continue;
+						}
+					}
+					if (charCode == 0xD83E)
+					{
+						charCode = string.charCodeAt(index + 1);
+						if (charCode >= 0xDD10 && charCode <= 0xDD2F)
+						{
+							output.push(string.slice(index, index + 2) + '\uFE0E'); // Attempt to fix EMOJI rendering
+							++index;
+							continue;
+						}
+					}
+					if (charCode >= 0xD800 && charCode <= 0xDBFF) 
+					{
+						charCode = string.charCodeAt(index + 1);
+						if (charCode >= 0xDC00 && charCode <= 0xDFFF)
+						{
 							output.push(string.slice(index, index + 2));
 							++index;
 							continue;
 						}
+					}
+					if (charCode == 0xFE0F)
+					{
+						continue;
 					}
 					output.push(string.charAt(index));
 				}
@@ -257,7 +288,8 @@
 					if (twitterMessages.length < maxMessages)
 					{
 						var messageUrl = "https://twitter.com/" + msg.user.screen_name + "/status/" + msg.id_str;
-						twitterMessages.push({ text: msg.text, url: messageUrl });
+						//console.log()
+						twitterMessages.push({ text: msg.text.replace("\uFE0F", "11111111"), url: messageUrl });
 					}
 				}
 			});
