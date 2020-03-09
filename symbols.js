@@ -2,7 +2,7 @@ var faceReplacement = '\u2687'; // Replacement character for faces
 
 Number.prototype.inRange = function(min, max)
 {
-	return charCode >= min && charCode <= max;
+	return this >= min && this <= max;
 }
 
 function getSymbols(string)
@@ -30,10 +30,10 @@ function getSymbols(string)
 				output.push(string.slice(startIndex, index + 1));
 				continue;
 			}
-			if (charCode.inRange(0xD83D, 0xDBFF) // Override for EMOJI
+			if (charCode.inRange(0xD83D, 0xDBFF)) // Override for EMOJI
 			{
 				charCode = string.charCodeAt(index + 1);
-				if (charCode.inRange(0xDE00, 0xDE4F)
+				if (charCode.inRange(0xDE00, 0xDE4F))
 				{
 					output.push(faceReplacement);
 					index++;
