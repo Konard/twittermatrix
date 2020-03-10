@@ -61,6 +61,7 @@
 
 			ctx.fillStyle = "#0F0"; //green text
 			ctx.font = font_size + 'px "Unifont"';
+			ctx.textAlign = "center";
 			//looping over drops
 			for (var i = 0; i < drops.length; i++) {
 				//a random alphabet character to print
@@ -77,7 +78,7 @@
 					text = " ";
 					
 				//x = i*font_size, y = value of drops[i]*font_size
-				ctx.fillText(text, i * font_size, drops[i] * font_size);
+				ctx.fillText(text, (i * font_size) + (font_size / 2), drops[i] * font_size);
 				//ctx.fillText(letters.length.toString(), font_size, font_size);
 
 				//sending the drop back to the top randomly after it has crossed the screen
