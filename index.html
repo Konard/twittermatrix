@@ -4,6 +4,8 @@
 <head>
 	<meta charset="utf-8">
 	<script src="https://cdn.pubnub.com/pubnub.min.js"></script>
+	<script src="unistring.js"></script>
+	<script src="symbols.js"></script>
 	<title>Twitter Matrix</title>
 	<style>
 		@font-face {
@@ -89,26 +91,6 @@
 		}
 
 		setInterval(draw, 44);
-		
-		function getSymbols(string) {
-			var index = 0;
-			var length = string.length;
-			var output = [];
-			for (; index < length - 1; ++index) {
-				var charCode = string.charCodeAt(index);
-				if (charCode >= 0xD800 && charCode <= 0xDBFF) {
-					charCode = string.charCodeAt(index + 1);
-					if (charCode >= 0xDC00 && charCode <= 0xDFFF) {
-						output.push(string.slice(index, index + 2));
-						++index;
-						continue;
-					}
-				}
-				output.push(string.charAt(index));
-			}
-			output.push(string.charAt(index));
-			return output;
-		}
 		
 		PUBNUB.init({
 			subscribe_key: 'sub-c-78806dd4-42a6-11e4-aed8-02ee2ddab7fe',
