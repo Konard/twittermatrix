@@ -28,11 +28,9 @@
 
 <body>
 	<canvas id="c"></canvas>
-	
 	<audio id="a" autoplay="autoplay" loop="loop" preload="auto">
 		<source src="DramaticEndingShortVersion.mp3" type="audio/mpeg">
 	</audio>
-		
 	<script>
 		onload = function() {
 			// based on
@@ -68,7 +66,7 @@
 			var rows = Math.floor(c.height / font_size);
 			var middle = Math.floor(columns / 2);
 			
-			// x below is the x coordinate
+			// x is the x coordinate or column number
 			for (var x = 0; x < columns; x++)
 				messages.push({ y: Math.floor(Math.random() * rows), offset: 0, symbols: [] });
 			
@@ -166,6 +164,7 @@
 				
 				ctx.fillStyle = "#4F4"; //green text
 				ctx.font = font_size + 'px "Unifont"';
+				ctx.textAlign = "center";
 
 				// draw new letters
 				for (var i = 0; i < columns; i++) 
@@ -183,7 +182,7 @@
 						var symbol = message.symbols[message.offset];
 						
 						if (symbol)
-							ctx.fillText(symbol, x * font_size, message.y * font_size);
+							ctx.fillText(symbol, (x * font_size) + (font_size / 2), message.y * font_size);
 							
 						message.offset++;
 					}
