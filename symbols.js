@@ -1,4 +1,6 @@
 var faceReplacement = '\u2687'; // Replacement character for faces 
+var renderAsText = '\uFE0E'; // VARIATION SELECTOR-15 'text style'
+var renderAsImage = '\uFE0F'; // VARIATION SELECTOR-16 'emoji style'
 
 Number.prototype.inRange = function(min, max)
 {
@@ -15,6 +17,11 @@ function getSymbols(string)
 		if ((index + 1) < length)
 		{
 			var charCode = string.charCodeAt(index);
+			if (charCode == 0xFE0F)
+			{
+				output.push(renderAsText);
+				continue;
+			}
 			if (charCode.inRange(0x0900, 0x097F) || charCode.inRange(0xA8E0, 0xA8FF)) // Devanagari support
 			{
 				var startIndex = index;
