@@ -14,15 +14,13 @@
 	<style>
 		@font-face {
 			font-family: 'Unifont';
-			src: url('unifont.woff') format('woff'),
-				 url('unifont.ttf') format('truetype');
+			src: url('unifont.woff') format('woff'), url('unifont.ttf') format('truetype');
 			font-weight: normal;
 			font-style: normal;
 		}
-	
 		html, body, canvas, script { margin: 0; padding: 0; overflow: hidden; }
-		body { background: black; font-family: "Unifont", "Courier New", "Courier"; }
-		canvas { display: block; cursor: pointer; }
+		body { background: black; }
+		canvas { cursor: pointer; }
 	</style>
 </head>
 
@@ -150,7 +148,7 @@
 				{
 					//Black BG for the canvas
 					//translucent BG to show trail
-					ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+					ctx.fillStyle = "rgba(0, 0, 0, 0.10)";
 					ctx.fillRect(0, 0, currentColumn * font_size, c.height);
 					ctx.fillRect((currentColumn + 1) * font_size, 0,  c.width, c.height);
 				}
@@ -158,7 +156,7 @@
 				{
 					//Black BG for the canvas
 					//translucent BG to show trail
-					ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+					ctx.fillStyle = "rgba(0, 0, 0, 0.10)";
 					ctx.fillRect(0, 0, c.width, c.height);
 				}
 
@@ -231,11 +229,11 @@
 			}
 			
 			// Take language from url hash parameter
-			var language = window.location.hash.substr(1).toLowerCase();
+			language = window.location.hash.substr(1).toLowerCase();
 
 			function addTwitterMessage(msg) {
 				var messageUrl = "https://twitter.com/" + msg.user.screen_name + "/status/" + msg.id_str;
-				twitterMessages.push({ text: msg.text.replace("\uFE0F", "11111111"), url: messageUrl });
+				twitterMessages.push({ text: msg.text, url: messageUrl });
 			}
 
 			PUBNUB.init({
@@ -247,27 +245,10 @@
 					// skip if there are too many messages (events)
 					if (twitterMessages.length < maxMessages)
 					{
-
-						// If Russian
-						if (language == "ru") {
-							if (msg.lang == "ru") {
-								addTwitterMessage(msg);
-							} else {
-								return;
-							}
+						if (!language || msg.lang == language)
+						{
+							addTwitterMessage(msg);
 						}
-
-						// If English
-						if (language == "en") {
-							if (msg.lang == "en") {
-								addTwitterMessage(msg);
-							} else {
-								return;
-							}
-						}
-
-						// Show all messages if language is not specified
-						addTwitterMessage(msg);
 					}
 				}
 			});
