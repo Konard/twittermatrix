@@ -1,16 +1,13 @@
 # Twitter Matrix
 
-## Messages
+### All messages
 https://konard.github.io/twittermatrix/messages.html
 
 ### English only
-
-https://konard.github.io/twittermatrix/messages_en.html
+https://konard.github.io/twittermatrix/messages.html#en
 
 ### Russian only
+https://konard.github.io/twittermatrix/messages.html#ru
 
-https://konard.github.io/twittermatrix/messages_ru.html
-
-## Random symbols from twitter messages
-
+### Random symbols from twitter messages
 https://konard.github.io/twittermatrix/
