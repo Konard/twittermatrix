@@ -14,14 +14,14 @@
 	<style>
 		@font-face {
 			font-family: 'Unifont';
-			src: url('unifont.woff') format('woff')
+			src: url('unifont.woff') format('woff'),
 				 url('unifont.ttf') format('truetype');
 			font-weight: normal;
 			font-style: normal;
 		}
 	
 		html, body, canvas, script { margin: 0; padding: 0; overflow: hidden; }
-		body { background: black; font-family: "Unifont"; }
+		body { background: black; font-family: "Unifont", "Courier New", "Courier"; }
 		canvas { display: block; cursor: pointer; }
 	</style>
 </head>
@@ -161,9 +161,9 @@
 					ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
 					ctx.fillRect(0, 0, c.width, c.height);
 				}
-				
+
 				ctx.fillStyle = "#4F4"; //green text
-				ctx.font = font_size + 'px "Unifont"';
+				ctx.font = font_size + 'px "Unifont", "Courier New", "Courier"';
 				ctx.textAlign = "center";
 
 				// draw new letters
