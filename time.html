@@ -31,7 +31,11 @@
 		<source src="DramaticEndingShortVersion.mp3" type="audio/mpeg">
 	</audio>
 	<script>
-		onload = function() {
+		var drawTimerId = null;
+		var dataTimerId = null;
+		var messagesQueue = []; // data stack (queue)
+
+		function resetMatrix() {
 			// based on
 			// https://codepen.io/P3R0/pen/MwgoKv
 			// https://www.pubnub.com/developers/realtime-data-streams/twitter-stream/
@@ -49,7 +53,6 @@
 			
 			var maxStepsToResetColumn = 200;
 
-			var twitterMessages = []; // data stack (queue)
 			var messages = []; // current printed data
 			
 			var a = document.getElementById("a");
@@ -70,7 +73,8 @@
 			for (var x = 0; x < columns; x++)
 				messages.push({ y: Math.floor(Math.random() * rows), offset: 0, symbols: [] });
 			
-			var timerId = setInterval(draw, currentSpeed);
+			clearInterval(drawTimerId);
+			drawTimerId = setInterval(draw, currentSpeed);
 			
 			mouseState = { x: -1, y: -1 };
 			currentColumnState = { };
@@ -189,9 +193,9 @@
 					else
 					{
 						var startNewColumn = Math.random() > 0.95;
-						if (twitterMessages.length > 0 && startNewColumn)
+						if (messagesQueue.length > 0 && startNewColumn)
 						{
-							var twitterMessage = twitterMessages.pop();
+							var twitterMessage = messagesQueue.pop();
 							var symbols = getSymbols(twitterMessage.text);
 							
 							message.url = twitterMessage.url;
@@ -208,7 +212,7 @@
 				}
 				
 				// adjust speed
-				if (twitterMessages.length > (columns * 2))
+				if (messagesQueue.length > (columns * 2))
 				{
 					if (currentSpeed > minSpeed)
 					{
@@ -218,7 +222,7 @@
 						timerId = setInterval(draw, currentSpeed);
 					}
 				}
-				else if (twitterMessages.length < (columns / 2))
+				else if (messagesQueue.length < (columns / 2))
 				{
 					if (currentSpeed < maxSpeed)
 					{
@@ -229,48 +233,19 @@
 					}
 				}
 			}
-			
-			// Take language from url hash parameter
-			language = window.location.hash.substr(1).toLowerCase();
 
-			// setInterval(function()
-			// {
-			// 	// push current local iso time into the twitterMessages array
-			// 	twitterMessages.push({text: new Date().toLocaleString('en-US', {timeZone: language})});
-			// }, 1000);
-
-			// twitterMessages.push({ text: "test", url: "test" });
-
-			setInterval(function()
+			clearInterval(dataTimerId);
+			dataTimerId = setInterval(function()
 			{
 				const timeString = moment().format('HH:mm:ss.SSS');
-				twitterMessages.push({ text: timeString, url: "http://whatisthematrix.com/" });
+				messagesQueue.push({ text: timeString, url: "http://whatisthematrix.com/" });
 
-				console.log(twitterMessages.length);
+				console.log(messagesQueue.length);
 			}, 32);
-
-			// function addTwitterMessage(msg) {
-			// 	var messageUrl = "https://twitter.com/" + msg.user.screen_name + "/status/" + msg.id_str;
-			// 	twitterMessages.push({ text: msg.text, url: messageUrl });
-			// }
-
-			// PUBNUB.init({
-			// 	subscribe_key: 'sub-c-78806dd4-42a6-11e4-aed8-02ee2ddab7fe',
-			// 	ssl: true
-			// }).subscribe({
-			// 	channel: 'pubnub-twitter',
-			// 	message: function(msg) {
-			// 		// skip if there are too many messages (events)
-			// 		if (twitterMessages.length < maxMessages)
-			// 		{
-			// 			if (!language || msg.lang == language)
-			// 			{
-			// 				addTwitterMessage(msg);
-			// 			}
-			// 		}
-			// 	}
-			// });
 		}
+
+		window.addEventListener('resize', resetMatrix);
+		onload = resetMatrix;
 	</script>
 </body>
 
